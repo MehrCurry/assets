@@ -1,6 +1,7 @@
 package de.gzockoll.prototype.assets.entity;
 
 import com.google.common.io.ByteStreams;
+import com.mongodb.gridfs.GridFSDBFile;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -55,6 +56,9 @@ public class Asset {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public Asset(GridFSDBFile one) {
     }
 
     public long getSize() {

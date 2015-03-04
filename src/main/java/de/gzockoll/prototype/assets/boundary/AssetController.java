@@ -3,6 +3,7 @@ package de.gzockoll.prototype.assets.boundary;
 import com.google.common.base.Preconditions;
 import de.gzockoll.prototype.assets.entity.Asset;
 import de.gzockoll.prototype.assets.entity.AssetRepository;
+import de.gzockoll.prototype.assets.entity.GridFSDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
@@ -16,10 +17,7 @@ import java.io.IOException;
 @RestController
 public class AssetController {
     @Autowired
-    private GridFsTemplate template;
-
-    @Autowired
-    private AssetRepository repository;
+    private GridFSDao dao;
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public @ResponseBody
@@ -32,7 +30,7 @@ public class AssetController {
             asset = new Asset(file.getInputStream(),file.getOriginalFilename());
             long sizeAsset=asset.getSize();
             Preconditions.checkState(sizeUpload==sizeAsset);
-            // repository.save(asset);
+            dao.save(asset);
         } catch (IOException e) {
             log.error("Error: " + e);
         }
@@ -42,13 +40,13 @@ public class AssetController {
     @RequestMapping(value = "/assets/{id}", method = RequestMethod.GET)
     public HttpEntity<Asset> findDocument(@PathVariable(value = "id") String id) {
         HttpHeaders httpHeaders = new HttpHeaders();
-        final Asset asset = repository.findOne(id);
+        final Asset asset = dao.findOne(id);
         return new ResponseEntity<>(asset, httpHeaders, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/assets/raw/{id}", method = RequestMethod.GET)
     public ResponseEntity<byte[]> sendDocument(@PathVariable(value = "id") String id) {
-        final Asset asset = repository.findOne(id);
+        final Asset asset = dao.findOne(id);
         long size=asset.getSize();
         log.debug("Size " + size);
         HttpHeaders headers = new HttpHeaders();
@@ -60,6 +58,6 @@ public class AssetController {
 
     public void save(Asset a) {
         Preconditions.checkNotNull(a);
-        repository.save(a);
+        dao.save(a);
     }
 }
